@@ -18,7 +18,8 @@ class Book(models.Model):
         verbose_name='Количество страниц    '
     )
     logo = models.ImageField(
-        upload_to='image/'
+        upload_to='image/',
+        null=True
     )
     def __str__(self):
         return self.title

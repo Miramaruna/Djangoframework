@@ -10,4 +10,4 @@ urlpatterns = [
 
 ]
 
-urlpatterns += router.urls]
+urlpatterns += router.urls

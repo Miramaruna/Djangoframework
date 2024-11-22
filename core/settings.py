@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
-    'apps.news',
+    'apps.Books',
 
     # rest
     'rest_framework',

@@ -1,89 +1,61 @@
 from rest_framework import serializers
 from django.contrib.auth.models import AbstractUser
 
-from apps.news.models import Students, Transaction
+from apps.news.models import ToDo, User
 
-class TransactionSerializers(serializers.ModelSerializer):
-    # geekcoin = serializers.DecimalField(max_digits=10, decimal_places=2)
-
+class ToDoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
-        fields = ['id', 'fromuser', 'touser', 'amount', 'created_at']
+        model = ToDo
+        fields = ['id', 'title', 'description', 'user', 'is_completed', 'created_at', 'image']
 
-    def validate(self, attrs):
-        fromuser = attrs.get('fromuser')
-        touser = attrs.get('touser')
-        amount = attrs.get('amount')
-        # geekcoin = attrs.get('geekcoin')
-
-        if fromuser.geekcoin is None:
-            raise serializers.ValidationError('чота ты бомж')
-
-        if fromuser == touser:
-            raise serializers.ValidationError('Ти чо куку одинаковых делать??')
-
-        babki = fromuser.geekcoin
-
-        if babki < amount:
-            raise serializers.ValidationError('У тебя недостаточно Geekcoins для этой транзакции.')
-
-        return attrs
-
-    def create(self, validated_data):
-        fromuser = validated_data['fromuser']
-        touser = validated_data['touser']
-        amount = validated_data['amount']
-        # geekcoin = validated_data['geekcoin']
-
-        # fromuser_balance = fromuser.geekcoin  
-
-        fromuser.geekcoin -= amount
-        touser.geekcoin += amount
-
-        fromuser.save()
-        touser.save()
-
-        transaction = Transaction.objects.create(
-            fromuser=fromuser,
-            touser=touser,
-            amount=amount
-        )
-
-        return transaction
-
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Students
-        fields = ['id', 'username', 'geekcoin']
-
-class StudentsRegisterSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=30, write_only=True)
     confirm_password = serializers.CharField(max_length=30, write_only=True)
     class Meta:
-        model = Students
-        fields = ['id', 'username', 'email', 'password', 'confirm_password']
+        model = User
+        fields = ['id', 'username', 'email', 'phone_number', 'password', 'confirm_password']
 
     def create(self, validated_data): 
-        user = Students.objects.create(
+        user = User.objects.create(
             username=validated_data['username']
         )
-
-        # user = Students.objects.create_user(
-        # password=validated_data['password'],
-        # username=validated_data['username']
-        # )
         user.set_password(validated_data['password'])
         user.save()
         return user
     
     def validate(self, attrs):
+        phone_number = attrs.get('phone_number')
+
         if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError({'confirm_password': "Пароли не совпадают"})
         if len(attrs['password']) < 8:
             raise serializers.ValidationError({'password': "Минимум 8 символов"})
+        if "+996" or "+(996)" not in phone_number:
+            raise serializers.ValidationError({'phone_number':"ти кыргыз или нет шо?"})
         return attrs
     
-class StudentBalanceSerializers(serializers.ModelSerializer):
+class UserSerializers(serializers.ModelSerializer):
     class Meta:
-        model = Students
-        fields = ['id', 'username', 'geekcoin']
+        model = User
+        fields = ['id', 'username', 'age', 'created_at', 'email', 'phone_number']
+
+class DeleteToDoSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ToDo
+        fields = '__all__'
+
+class CreateToDoSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ToDo
+        fields = ['id', 'title', 'description', 'is_comleted', 'user', 'image']
+
+    def create(self, validated_data):
+        todo = ToDo.objects.create(
+            title = validated_data['title']
+        )
+        todo.save()
+        return todo
+    
+    # def validate(self, attrs):
+        
+    #     return attrs

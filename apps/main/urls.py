@@ -1,6 +1,6 @@
 from django.urls import path
-from apps.main.views import setting
+from apps.main.views import SettingsListApi
 
 urlpatterns = [
-    path('', setting, name='setting'),
+    path('', SettingsListApi.as_view(), name='settings_list_api'),
 ]
